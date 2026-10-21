@@ -50,5 +50,10 @@ node --test tests/*.test.js
 node build.js
 ```
 
-Physics tests check zero-speed behavior, velocity-squared and density/area scaling, orientation symmetry and coefficient normalization. Browser checks cover the rendered interface and import/control interactions. Three.js r170 is pinned to the jsDelivr npm distribution, matching the engine templates. An internet connection is required for the initial library load. Required loaders are vendored with the MIT license. Google Fonts is optional. No analytics or backend services.
+Physics tests check zero-speed behavior, velocity-squared and density/area scaling, orientation symmetry and coefficient normalization. Browser checks cover the rendered interface and import/control interactions. Three.js r170 is pinned to the jsDelivr npm distribution, matching the engine templates. An internet connection is required for the initial library load. Required loaders are vendored with the MIT license. Typography uses the platform system fonts. No analytics or backend services.
 
+
+
+## Interface design
+
+See [DESIGN_REVIEW.md](DESIGN_REVIEW.md) for the Apple design review, changes and verification. Use the exact-value inputs beside the sliders for precise settings. Reset run offers Undo reset to restore the previous conditions and recorded data. Camera reset is animated and can be interrupted by dragging; reduced motion uses an immediate reset.
