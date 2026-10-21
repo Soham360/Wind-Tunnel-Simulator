@@ -58,3 +58,9 @@ Physics tests check zero-speed behavior, velocity-squared and density/area scali
 
 See [DESIGN_REVIEW.md](DESIGN_REVIEW.md) for the Apple design review, changes and verification. Use the exact-value inputs beside the sliders for precise settings. Reset run offers Undo reset to restore the previous conditions and recorded data. Camera reset is animated and can be interrupted by dragging; reduced motion uses an immediate reset.
 
+
+## Camera views and lessons
+
+Use 3D, Side, Other side, Front, and Top below the viewport to align the camera. View changes preserve test orientation and forces, automatically frame the current geometry, and can be interrupted by orbiting. Camera transitions travel around the model rather than through it.
+
+Model & methods uses native MathML with labeled equations, units and assumptions, without an external equation-rendering dependency. Lessons covers speed, orientation, scale, shape, importing geometry, and the difference between this approximation and CFD. Experiment buttons replace the test article and start a new run; export retained data first. Speed and scale comparisons hold the other conditions fixed. A cube preset provides a shape comparison with the sphere at the same bounding reference area.

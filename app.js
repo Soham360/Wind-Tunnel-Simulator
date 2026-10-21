@@ -1,4 +1,5 @@
 import {createScene} from './scene.js';
+import {LESSONS} from './lessons.js';
 import {solve} from './physics.js';
 const $=id=>document.getElementById(id),defaults={speed:30,density:1.225,pitch:6,yaw:0,roll:0,length:2};let config={...defaults},mesh,running=true,elapsed=0,history=[],sweep=[],rows=[],view,resetSnapshot=null,currentResult,sweepVersion=0;
 const specs=[['speed','Airspeed',0,100,1,'m/s'],['density','Air density',.2,1.5,.005,'kg/m³'],['pitch','Pitch / angle of attack',-90,90,1,'°'],['yaw','Yaw',-180,180,1,'°'],['roll','Roll',-180,180,1,'°']];
@@ -20,8 +21,8 @@ const fmt=(v,d=2)=>Math.abs(v)>=10000?v.toExponential(2):v.toLocaleString(undefi
 function refresh(){if(!mesh)return;view.update(config);const r=currentResult=result();for(const k of ['drag','lift','cd'])$(k).textContent=fmt(r[k],k==='cd'?3:2);$('re').textContent=r.re.toExponential(2);$('q').textContent=fmt(r.q,1)+' Pa';$('area').textContent=fmt(r.area,3)+' m²';$('surface').textContent=fmt(r.surface,3)+' m²';$('mach').textContent=fmt(r.mach,3);const version=++sweepVersion,settings={...config},next=[];$('sweep').setAttribute('aria-busy','true');
  const batch=()=>{if(version!==sweepVersion)return;for(let j=0;j<3&&next.length<31;j++){const x=-30+next.length*2;next.push({x,...result({...settings,pitch:x})})}sweep=next;chart($('sweep'),sweep,'Pitch sweep −30° to +30°');if(next.length<31)requestAnimationFrame(batch);else $('sweep').setAttribute('aria-busy','false')};requestAnimationFrame(batch);}
 
-function setMesh(m,name){resetSnapshot=null;$('undo').hidden=true;mesh=m;$('modelName').textContent=name;$('meshInfo').textContent=`${m.triangles.toLocaleString()} triangles · ${m.size.map(v=>v.toFixed(2)).join(' × ')} m`;history=[];rows=[];elapsed=0;refresh();chart($('history'),history,'Force history');}
-try{view=createScene($('scene'));setMesh(view.preset('wing'),'Demonstrator wing')}catch(e){$('status').textContent='3D initialization failed. Enable WebGL and reload. '+e.message;throw e}
+function setMesh(m,name){resetSnapshot=null;$('undo').hidden=true;mesh=m;$('modelName').textContent=name;$('meshInfo').textContent=`${m.triangles.toLocaleString()} triangles · ${m.size.map(v=>v.toFixed(2)).join(' × ')} m`;history=[];rows=[];elapsed=0;refresh();view.setView('perspective');chart($('history'),history,'Force history');}
+try{view=createScene($('scene'),name=>{document.querySelectorAll('[data-view]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.view===name)));$('view-status').textContent=name?(document.querySelector('[data-view="'+name+'"]').textContent+' view · camera only'):'Free orbit · camera only'});setMesh(view.preset('wing'),'Demonstrator wing')}catch(e){$('status').textContent='3D initialization failed. Enable WebGL and reload. '+e.message;throw e}
 $('preset').addEventListener('change',()=>{setMesh(view.preset($('preset').value),$('preset').selectedOptions[0].textContent);$('status').dataset.kind='status';$('status').textContent='Preset loaded. Files stay on your device.'});
 $('length').addEventListener('change',()=>{const n=Number($('length').value);if(!Number.isFinite(n)||n<.01||n>50){$('length').value=config.length;$('status').textContent='Enter a model length from 0.01 to 50 metres.';return}config.length=n;setMesh(view.rescale(n),$('modelName').textContent)});
 let loading=false;async function upload(file){if(!file||loading)return;loading=true;$('file').disabled=true;$('preset').disabled=true;$('status').textContent='Reading geometry…';$('status').dataset.kind='status';$('drop').setAttribute('aria-busy','true');try{const m=await view.load(file);setMesh(m,file.name);$('preset').value='custom';$('status').textContent='Model loaded. Check scale and axis orientation before testing.'}catch(e){$('status').dataset.kind='error';$('status').textContent='Could not load model: '+e.message}finally{$('drop').setAttribute('aria-busy','false');loading=false;$('file').disabled=false;$('preset').disabled=false;$('file').value=''}}
@@ -39,3 +40,12 @@ $('export').onclick=()=>{const values=rows.length?rows:[{x:elapsed,...result(),.
 new ResizeObserver(()=>{chart($('history'),history,'Force history');chart($('sweep'),sweep,'Pitch sweep')}).observe($('history').parentElement);
 
 
+
+for(const button of document.querySelectorAll('[data-view]'))button.addEventListener('click',()=>view.setView(button.dataset.view));
+for(const button of document.querySelectorAll('[data-lesson]'))button.addEventListener('click',()=>{
+ const lesson=LESSONS[button.dataset.lesson];if(!lesson)return;
+ config={...lesson.config};syncInputs();view.update(config);setMesh(view.preset(lesson.shape),lesson.label);$('preset').value=lesson.shape;view.setView(lesson.view);
+ if(!running)$('pause').click();
+ $('status').dataset.kind='status';$('status').textContent=lesson.message;$('lesson-status').textContent=lesson.message;
+ $('workspace').scrollIntoView({behavior:'instant',block:'start'});document.querySelector('[data-view="'+lesson.view+'"]').focus({preventScroll:true});
+});
