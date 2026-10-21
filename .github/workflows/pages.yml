@@ -1,5 +1,14 @@
-name: Build and test simulator
-on: [push, pull_request, workflow_dispatch]
+name: Build, test and deploy simulator
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: false
 jobs:
   verify:
     runs-on: ubuntu-latest
@@ -14,3 +23,23 @@ jobs:
         with:
           name: wind-tunnel-simulator
           path: dist
+      - uses: actions/upload-pages-artifact@v3
+        if: github.event_name != 'pull_request'
+        with:
+          path: dist
+  deploy:
+    if: github.event_name != 'pull_request'
+    needs: verify
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/configure-pages@v5
+      - name: Publish simulator
+        id: deployment
+        uses: actions/deploy-pages@v4
+
