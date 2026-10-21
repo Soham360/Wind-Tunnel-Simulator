@@ -10,7 +10,7 @@ Requires Node.js 22 or newer. No package installation is needed.
 node server.js
 ```
 
-Open http://127.0.0.1:4173. Use `PORT` to select another port. For static hosting run `node build.js` and serve the contents of `dist/`. GitHub Actions tests and packages the static build on each push. Hosting is not enabled automatically.
+Open http://127.0.0.1:4173. Use `PORT` to select another port. For static hosting run `node build.js` and serve the contents of `dist/`. GitHub Actions tests and builds every push to main, then publishes dist/ to GitHub Pages. Pull requests run checks without deployment. The live simulator is https://soham360.github.io/Wind-Tunnel-Simulator/.
 
 ## Explore
 
@@ -57,3 +57,4 @@ Physics tests check zero-speed behavior, velocity-squared and density/area scali
 ## Interface design
 
 See [DESIGN_REVIEW.md](DESIGN_REVIEW.md) for the Apple design review, changes and verification. Use the exact-value inputs beside the sliders for precise settings. Reset run offers Undo reset to restore the previous conditions and recorded data. Camera reset is animated and can be interrupted by dragging; reduced motion uses an immediate reset.
+
