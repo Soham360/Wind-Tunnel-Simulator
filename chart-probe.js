@@ -46,6 +46,7 @@ export function createChartProbe(canvas, redraw, options={}) {
   });
   const paint = (context, rows, {left, right, top, bottom, xp, yp}) => {
     count = rows.length;
+    if(!count){pinned=null;current=null;index=null;tooltip.hidden=true;return;}
     if ((!count || (pointer === null && index === null) ||
         (pointer !== null && (pointer < left || pointer > right))) && !pinned) {
       tooltip.hidden = true;current=null;

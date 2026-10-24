@@ -1,6 +1,6 @@
 import {parameterAirfoil} from './wing-analysis.js';
 import {saveWorkspace,loadWorkspace,validateWorkspace} from './workspace-store.js';
-import {renderChart} from './instrument-chart.js';
+import {renderChart} from './instrument-chart.js?v=features2';
 const colors=['#6c63b5','#2379a1','#b64e78','#9a7024','#507e32','#775a45'];
 const number=n=>Number.isFinite(n)?n.toLocaleString(undefined,{maximumFractionDigits:3}):'—';
 function download(name,value,type='application/json') {const a=document.createElement('a'),url=URL.createObjectURL(new Blob([value],{type}));a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}

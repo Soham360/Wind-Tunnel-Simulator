@@ -1,4 +1,4 @@
-import {createChartProbe} from './chart-probe.js?v=features1';
+import {createChartProbe} from './chart-probe.js?v=features2';
 const charts=new WeakMap();
 export function visibleSamples(rows,range){return rows.filter(r=>(!range||(r.x>=range[0]&&r.x<=range[1]))&&Number.isFinite(r.lift)&&Number.isFinite(r.drag));}
 export function renderChart(canvas,rows,options={}){

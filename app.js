@@ -1,5 +1,5 @@
-import {renderChart} from './instrument-chart.js';
-import {createLab} from './lab.js';
+import {renderChart} from './instrument-chart.js?v=features2';
+import {createLab} from './lab.js?v=features2';
 import {solveWing} from './wing-analysis.js';
 import {setupWorkspace} from './workspace.js?v=20261023';
 import {createScene} from './scene.js?v=features1';
