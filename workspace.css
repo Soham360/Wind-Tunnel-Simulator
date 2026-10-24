@@ -28,3 +28,11 @@ body:not([data-page=simulation]) main#workspace{padding:1.5rem 4%;}body:not([dat
 @media(max-width:760px){header nav a:first-child{display:block}.dashboard .charts h2{font-size:.6875rem}.section-heading{padding-top:.25rem}header nav{width:100%;justify-content:space-between}.brand small{display:none}}
 
 
+
+/* Readouts stay within each chart card, including on small screens. */
+.dashboard .charts .card{position:relative}
+.charts canvas{cursor:crosshair;touch-action:pan-y}
+.chart-tooltip{position:absolute;top:1.9rem;z-index:3;pointer-events:none;width:max-content;max-width:calc(100% - .5rem);padding:.4rem .55rem;border:1px solid #cbd8d1;border-radius:.5rem;background:#fffffff5;box-shadow:0 2px 8px #153c2926;font-size:.6875rem;line-height:1.6;font-variant-numeric:tabular-nums;color:#243d38}
+.chart-tooltip div{display:flex;justify-content:space-between;gap:.75rem}
+.chart-tooltip strong{font-weight:650}.chart-tooltip div:nth-child(2){color:#1d6b60}.chart-tooltip div:nth-child(3){color:#a9542c}
+@media(prefers-reduced-transparency:reduce){.chart-tooltip{background:white}}

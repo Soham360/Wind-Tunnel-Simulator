@@ -1,3 +1,4 @@
+import {createChartProbe} from './chart-probe.js';
 import {setupWorkspace} from './workspace.js?v=20261023';
 import {createScene} from './scene.js';
 import {createAirfoilEditor} from './airfoil-editor.js';
@@ -18,7 +19,16 @@ for(const [id,label,min,max,step,unit] of specs){
  $(id+'Exact').addEventListener('change',()=>{$(id+'Exact').value=config[id]});
 }
 
-function chart(canvas,rows,xlabel){const dpr=Math.min(devicePixelRatio,2),w=canvas.clientWidth,h=canvas.clientHeight;canvas.width=w*dpr;canvas.height=h*dpr;const c=canvas.getContext('2d');c.scale(dpr,dpr);c.clearRect(0,0,w,h);const left=43,right=w-12,top=14,bottom=h-27;let lo=Math.min(0,...rows.flatMap(r=>[r.lift,r.drag])),hi=Math.max(1,...rows.flatMap(r=>[r.lift,r.drag]));const pad=(hi-lo)*.12;lo-=pad;hi+=pad;const xmin=rows[0]?.x??0,xmax=rows.at(-1)?.x??30;const xp=x=>left+(x-xmin)/(xmax-xmin||1)*(right-left),yp=y=>bottom-(y-lo)/(hi-lo)*(bottom-top);c.font='11px system-ui';const ticks=Math.max(1,Math.min(4,Math.floor((bottom-top)/20)));for(let i=0;i<=ticks;i++){const y=lo+(hi-lo)*i/ticks,py=yp(y);c.strokeStyle='#e7ece5';c.beginPath();c.moveTo(left,py);c.lineTo(right,py);c.stroke();c.fillStyle='#526957';c.fillText(Math.abs(y)>999?y.toExponential(1):y.toFixed(Math.abs(y)<10?1:0),1,py+3)}for(let i=0;i<5;i++){const x=xmin+(xmax-xmin)*i/4;c.fillStyle='#829086';c.fillText(x.toFixed(0),xp(x)-5,h-10)}for(const [key,color] of [['lift','#287d73'],['drag','#a9542c']]){c.strokeStyle=color;c.lineWidth=2;c.setLineDash(key==='drag'?[6,4]:[]);c.beginPath();rows.forEach((r,i)=>{i?c.lineTo(xp(r.x),yp(r[key])):c.moveTo(xp(r.x),yp(r[key]))});c.stroke()}canvas.setAttribute('aria-label',`${xlabel}. ${rows.length} samples. Lift range ${Math.min(...rows.map(r=>r.lift),0).toFixed(2)} to ${Math.max(...rows.map(r=>r.lift),0).toFixed(2)} newtons.`)}
+const chartProbes = new WeakMap();
+function chart(canvas,rows,xlabel){
+ let probe = chartProbes.get(canvas);
+ if (!probe) {
+  const state = {rows, xlabel};
+  state.draw = createChartProbe(canvas, () => chart(canvas, state.rows, state.xlabel));
+  chartProbes.set(canvas, state);probe = state;
+ }
+ probe.rows = rows;probe.xlabel = xlabel;
+const dpr=Math.min(devicePixelRatio,2),w=canvas.clientWidth,h=canvas.clientHeight;canvas.width=w*dpr;canvas.height=h*dpr;const c=canvas.getContext('2d');c.scale(dpr,dpr);c.clearRect(0,0,w,h);const left=43,right=w-12,top=14,bottom=h-27;let lo=Math.min(0,...rows.flatMap(r=>[r.lift,r.drag])),hi=Math.max(1,...rows.flatMap(r=>[r.lift,r.drag]));const pad=(hi-lo)*.12;lo-=pad;hi+=pad;const xmin=rows[0]?.x??0,xmax=rows.at(-1)?.x??30;const xp=x=>left+(x-xmin)/(xmax-xmin||1)*(right-left),yp=y=>bottom-(y-lo)/(hi-lo)*(bottom-top);c.font='11px system-ui';const ticks=Math.max(1,Math.min(4,Math.floor((bottom-top)/20)));for(let i=0;i<=ticks;i++){const y=lo+(hi-lo)*i/ticks,py=yp(y);c.strokeStyle='#e7ece5';c.beginPath();c.moveTo(left,py);c.lineTo(right,py);c.stroke();c.fillStyle='#526957';c.fillText(Math.abs(y)>999?y.toExponential(1):y.toFixed(Math.abs(y)<10?1:0),1,py+3)}for(let i=0;i<5;i++){const x=xmin+(xmax-xmin)*i/4;c.fillStyle='#829086';c.fillText(x.toFixed(0),xp(x)-5,h-10)}for(const [key,color] of [['lift','#287d73'],['drag','#a9542c']]){c.strokeStyle=color;c.lineWidth=2;c.setLineDash(key==='drag'?[6,4]:[]);c.beginPath();rows.forEach((r,i)=>{i?c.lineTo(xp(r.x),yp(r[key])):c.moveTo(xp(r.x),yp(r[key]))});c.stroke()}probe.draw(c,rows,{left,right,top,bottom,xp,yp});canvas.setAttribute('aria-label',`${xlabel}. ${rows.length} samples. Lift range ${Math.min(...rows.map(r=>r.lift),0).toFixed(2)} to ${Math.max(...rows.map(r=>r.lift),0).toFixed(2)} newtons.`)}
 function result(c=config){return solve(mesh.panels,{...c,area:mesh.area})}
 const fmt=(v,d=2)=>Math.abs(v)>=10000?v.toExponential(2):v.toLocaleString(undefined,{minimumFractionDigits:d,maximumFractionDigits:d});
 function refresh(){if(!mesh)return;view.update(config);const r=currentResult=result();for(const k of ['drag','lift','cd'])$(k).textContent=fmt(r[k],k==='cd'?3:2);$('re').textContent=r.re.toExponential(2);$('q').textContent=fmt(r.q,1)+' Pa';$('area').textContent=fmt(r.area,3)+' m²';$('surface').textContent=fmt(r.surface,3)+' m²';$('mach').textContent=fmt(r.mach,3);const version=++sweepVersion,settings={...config},next=[];$('sweep').setAttribute('aria-busy','true');
