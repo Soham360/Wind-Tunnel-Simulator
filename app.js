@@ -1,4 +1,4 @@
-import {setupWorkspace} from './workspace.js';
+import {setupWorkspace} from './workspace.js?v=20261023';
 import {createScene} from './scene.js';
 import {createAirfoilEditor} from './airfoil-editor.js';
 import {LESSONS} from './lessons.js';
