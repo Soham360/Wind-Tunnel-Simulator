@@ -7,6 +7,8 @@ export const CAMERA_VIEWS = {
 };
 
 export function cameraPose(view, radius, aspect=1, fov=38) {
+  // Reading views can initialize the simulation while its canvas is hidden.
+  aspect=Number.isFinite(aspect)&&aspect>0?aspect:1;
   const preset=CAMERA_VIEWS[view];
   if(!preset)throw new Error('Unknown camera view');
   const vertical=fov*Math.PI/180;

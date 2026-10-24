@@ -16,3 +16,6 @@ test('framing accommodates large models and narrow viewports',()=>{
  assert.equal(d(cameraPose('front',20)),10*d(cameraPose('front',2)));
  assert.ok(d(cameraPose('side',2,.5))>d(cameraPose('side',2,1)));
 });
+test('initializing behind a reading view retains a finite camera pose',()=>{
+ for(const aspect of [NaN,0])assert.ok(cameraPose('perspective',2,aspect).position.every(Number.isFinite));
+});
