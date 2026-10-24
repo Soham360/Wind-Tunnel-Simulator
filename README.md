@@ -18,8 +18,8 @@ Open http://127.0.0.1:4173. Use `PORT` to select another port. For static hostin
 - Try the wing, sphere or bluff-body presets.
 - Set physical **X-axis model length in metres**. Imported units are normalized to this value; dimensions are shown below the model name.
 - Orient with pitch, yaw and roll. Positive pitch raises the −X nose into flow travelling along +X. Y is vertical and Z is the span direction. Camera orbit is independent of model orientation.
-- Adjust airspeed and density. Inspect pressure coefficient colors, illustrative airflow particles, drag, vertical lift, Cd, Reynolds number, dynamic pressure, reference area, surface area and Mach number.
-- Watch the force history and −30° to +30° pitch sweep. Pause stops particle motion and recording; controls continue to update the steady estimate and sweep.
+- Adjust airspeed and density. Inspect pressure coefficient colors, continuous illustrative airflow ribbons, drag, vertical lift, Cd, Reynolds number, dynamic pressure, reference area, surface area and Mach number.
+- Watch the force history and −30° to +30° pitch sweep. Pause stops airflow highlight motion and recording; controls continue to update the steady estimate and sweep.
 - Export CSV with time, conditions, orientation, physical length, area, force components, coefficients, Reynolds and Mach. The latest hour (18,000 samples at 5 Hz) is retained in memory. Model or scale changes start a new run. Reset restores initial conditions and orientation while retaining the current geometry.
 
 ## Geometry requirements
@@ -64,3 +64,12 @@ See [DESIGN_REVIEW.md](DESIGN_REVIEW.md) for the Apple design review, changes an
 Use 3D, Side, Other side, Front, and Top below the viewport to align the camera. View changes preserve test orientation and forces, automatically frame the current geometry, and can be interrupted by orbiting. Camera transitions travel around the model rather than through it.
 
 Model & methods uses native MathML with labeled equations, units and assumptions, without an external equation-rendering dependency. Lessons covers speed, orientation, scale, shape, importing geometry, and the difference between this approximation and CFD. Experiment buttons replace the test article and start a new run; export retained data first. Speed and scale comparisons hold the other conditions fixed. A cube preset provides a shape comparison with the sphere at the same bounding reference area.
+
+
+## Custom airfoils and continuous airflow
+
+Airflow is rendered as 42 continuous ribbons with highlights moving in the wind direction. Paths curve around a conservative projected bounding envelope and update with model geometry and orientation. They are a visual aid, not CFD streamlines, and do not encode a computed velocity or surrounding pressure field. Pause, zero airspeed and reduced-motion preferences stop highlight motion; Streamlines toggles the entire overlay.
+
+Open Airfoil editor to build a custom wing. Ten handles control five shared chordwise stations on the upper and lower surfaces. Drag with pointer capture, use arrow keys (Shift for larger steps), or enter exact normalized X/Y coordinates. Shared X values remain ordered, upper and lower surfaces cannot cross, and the leading/trailing edges are fixed. Shape-preserving cubic interpolation smooths camber and thickness separately. The sampled profile is extruded in Z, centered and scaled to the Model length setting. Span/chord controls physical span.
+
+Test this airfoil activates the editor profile; moving a point also activates it and updates the 3D model and force estimates. Each geometry change starts a new recorded run. Subsequent edits preserve your camera position. Undo shape retains up to 40 edit snapshots. Reset profile and Symmetric profile provide starting shapes; Download profile (.dat) exports normalized 2D coordinates. The force solver remains the existing educational surface-pressure approximation, without circulation or stall.
