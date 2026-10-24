@@ -8,7 +8,7 @@ export function nearestSample(rows, x) {
   return nearest;
 }
 
-export function createChartProbe(canvas, redraw) {
+export function createChartProbe(canvas, redraw, options={}) {
   const tooltip = document.createElement('div');
   tooltip.className = 'chart-tooltip';
   tooltip.id = canvas.id + '-readout';
@@ -17,8 +17,8 @@ export function createChartProbe(canvas, redraw) {
   canvas.parentElement.append(tooltip);
   canvas.tabIndex = 0;
   canvas.setAttribute('aria-describedby', tooltip.id);
-  canvas.setAttribute('aria-description', 'Hover or touch to inspect samples. Use Left and Right arrow keys, Home and End to choose points. Escape dismisses the readout.');
-  let pointer = null, index = null, count = 0;
+  canvas.setAttribute('aria-description', 'Hover or touch to inspect samples. Use Left and Right arrow keys, Home and End to choose points. P pins the reading; Enter applies pitch on the sweep. Escape dismisses the readout.');
+  let pointer = null, index = null, count = 0, current=null, lastReading=null, pinned=null;
   const hide = () => { pointer = null; index = null; tooltip.hidden = true; redraw(); };
   const move = event => {
     const rect = canvas.getBoundingClientRect();
@@ -28,12 +28,15 @@ export function createChartProbe(canvas, redraw) {
   };
   canvas.addEventListener('pointermove', move);
   canvas.addEventListener('pointerdown', move);
+  canvas.addEventListener('click',()=>{if(current)options.onPick?.(current);});
   canvas.addEventListener('pointerleave', event => { if (event.pointerType !== 'touch') hide(); });
   canvas.addEventListener('pointercancel', hide);
   canvas.addEventListener('blur', hide);
   document.addEventListener('pointerdown', event => { if (event.target !== canvas) hide(); });
   canvas.addEventListener('keydown', event => {
-    if (event.key === 'Escape') { hide(); return; }
+    if (event.key === 'Escape') { pinned=null;hide(); return; }
+    if(event.key==='p'||event.key==='P'){pinned=pinned?null:current&&{...current};redraw();return;}
+    if(event.key==='Enter'&&current){options.onPick?.(current);return;}
     if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
     event.preventDefault();
     pointer = null;
@@ -41,16 +44,16 @@ export function createChartProbe(canvas, redraw) {
       Math.max(0, Math.min(count - 1, (index ?? 0) + (event.key === 'ArrowRight' ? 1 : -1)));
     redraw();
   });
-  return (context, rows, {left, right, top, bottom, xp, yp}) => {
+  const paint = (context, rows, {left, right, top, bottom, xp, yp}) => {
     count = rows.length;
-    if (!count || (pointer === null && index === null) ||
-        (pointer !== null && (pointer < left || pointer > right))) {
-      tooltip.hidden = true;
+    if ((!count || (pointer === null && index === null) ||
+        (pointer !== null && (pointer < left || pointer > right))) && !pinned) {
+      tooltip.hidden = true;current=null;
       return;
     }
     const x = rows[0].x + (pointer - left) / (right - left) * (rows.at(-1).x - rows[0].x);
     const selected = pointer === null ? Math.min(index, count - 1) : nearestSample(rows, x);
-    const row = rows[selected], px = xp(row.x);
+    const row = pinned || rows[selected];if(!row)return;current=row;lastReading=row;const px = Math.max(left,Math.min(right,xp(row.x)));
     context.setLineDash([3, 3]);
     context.strokeStyle = '#758e80';
     context.lineWidth = 1;
@@ -64,8 +67,8 @@ export function createChartProbe(canvas, redraw) {
     const value = n => Math.abs(n) >= 10000 ? n.toExponential(3) : n.toFixed(3);
     tooltip.replaceChildren();
     for (const [label, text] of [
-      [canvas.id === 'history' ? 'Time' : 'Pitch', row.x.toFixed(1) + (canvas.id === 'history' ? ' s' : '°')],
-      ['Lift', value(row.lift) + ' N'], ['Drag', value(row.drag) + ' N']
+      [(canvas.dataset.kind||canvas.id) === 'history' ? 'Time' : 'Pitch', row.x.toFixed(1) + ((canvas.dataset.kind||canvas.id) === 'history' ? ' s' : '°')],
+      [pinned?'Lift (pinned)':'Lift', value(row.lift) + ' N'], ['Drag', value(row.drag) + ' N']
     ]) {
       const line = document.createElement('div');
       const name = document.createElement('span');name.textContent = label;
@@ -79,4 +82,7 @@ export function createChartProbe(canvas, redraw) {
     tooltip.style.left = Math.max(4, Math.min(card.clientWidth - width - 4,
       preferred + width > card.clientWidth ? canvas.offsetLeft + px - width - 12 : preferred)) + 'px';
   };
+  paint.pin=()=>{pinned=lastReading?{...lastReading}:null;redraw();return !!pinned;};
+  paint.clearPin=()=>{pinned=null;hide();};
+  return paint;
 }

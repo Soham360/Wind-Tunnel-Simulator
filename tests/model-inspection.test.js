@@ -1,0 +1,4 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {inspectGeometry,reorientGeometry} from '../model-inspection.js';
+const v=[[0,0,0],[1,0,0],[0,1,0],[0,0,1]],closed=[[0,2,1],[0,1,3],[0,3,2],[1,2,3]].flatMap(f=>f.flatMap(i=>v[i]));
+test('inspection detects open edges, degenerate triangles, and reversed closed shells',()=>{const a=inspectGeometry(closed);assert.equal(a.open,0);assert.equal(a.nonmanifold,0);assert.ok(a.volume>0);assert.equal(inspectGeometry(closed.slice(9)).open,3);assert.equal(inspectGeometry([...closed,...Array(9).fill(0)]).degenerate,1);assert.equal(inspectGeometry(reorientGeometry(closed,'normals')).inward,true);});
+test('axis swaps preserve outward winding and can be undone without mutation',()=>{const original=[...closed],swap=reorientGeometry(closed,'swapXY');assert.ok(inspectGeometry(swap).volume>0);assert.deepEqual(reorientGeometry(swap,'swapXY'),original);assert.deepEqual(closed,original);});

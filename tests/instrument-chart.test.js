@@ -1,0 +1,2 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {visibleSamples} from '../instrument-chart.js';
+test('graph range excludes unsupported and missing samples without converting them to zero',()=>{const rows=[{x:-2,lift:2,drag:3},{x:0,lift:NaN,drag:1},{x:1,lift:null,drag:null},{x:2,lift:4,drag:5},{x:3,lift:8,drag:9}];assert.deepEqual(visibleSamples(rows,[0,2]),[rows[3]]);});

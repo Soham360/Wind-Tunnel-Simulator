@@ -43,5 +43,5 @@ export function createAirfoilEditor(root,onChange){
  $('airfoil-symmetric').onclick=()=>{remember();profile=defaultAirfoil(true);render();emit();};
  $('airfoil-undo').onclick=()=>{if(!undo.length)return;const state=undo.pop();profile=state.profile;span=state.span;render();emit();};
  $('airfoil-download').onclick=()=>{const url=URL.createObjectURL(new Blob([airfoilDat(profile)],{type:'text/plain'})),a=document.createElement('a');a.href=url;a.download='flowlab-airfoil.dat';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
- render();return {getProfile:()=>cloneAirfoil(profile)};
+ render();return {getProfile:()=>cloneAirfoil(profile),getDesign:saved,setDesign:(state,{notify=true,record=true}={})=>{if(record)remember();profile=cloneAirfoil(state.profile);span=state.span;render(true);if(notify)emit();}};
 }
