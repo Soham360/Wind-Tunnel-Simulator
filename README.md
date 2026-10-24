@@ -73,3 +73,10 @@ Airflow is rendered as 42 continuous ribbons with highlights moving in the wind 
 Open Airfoil editor to build a custom wing. Ten handles control five shared chordwise stations on the upper and lower surfaces. Drag with pointer capture, use arrow keys (Shift for larger steps), or enter exact normalized X/Y coordinates. Shared X values remain ordered, upper and lower surfaces cannot cross, and the leading/trailing edges are fixed. Shape-preserving cubic interpolation smooths camber and thickness separately. The sampled profile is extruded in Z, centered and scaled to the Model length setting. Span/chord controls physical span.
 
 Test this airfoil activates the editor profile; moving a point also activates it and updates the 3D model and force estimates. Each geometry change starts a new recorded run. Subsequent edits preserve your camera position. Undo shape retains up to 40 edit snapshots. Reset profile and Symmetric profile provide starting shapes; Download profile (.dat) exports normalized 2D coordinates. The force solver remains the existing educational surface-pressure approximation, without circulation or stall.
+
+
+## Screen-fitting workspace
+
+The simulation uses a viewport-sized dashboard rather than a scrolling landing page. On wide desktop windows, model/tunnel controls sit on the left, the 3D view and all live data in the center, and the airfoil customizer on the right. At narrower desktop widths, Controls and Airfoil share a switchable left panel while the tunnel and data remain visible. Short desktop windows use exact numeric controls in place of the sliders to retain every setting on screen.
+
+Phone layouts provide View & data, Controls and Airfoil panels. Panel contents can scroll independently when needed for small screens, larger text or expanded help; the simulation page itself stays fixed. Model & methods and Lessons are separate reading views. Navigation preserves the current model, conditions and recorded run; lesson experiments intentionally load their preset as before.

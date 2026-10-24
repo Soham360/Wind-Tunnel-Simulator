@@ -1,7 +1,9 @@
+import {setupWorkspace} from './workspace.js';
 import {createScene} from './scene.js';
 import {createAirfoilEditor} from './airfoil-editor.js';
 import {LESSONS} from './lessons.js';
 import {solve} from './physics.js';
+setupWorkspace();
 const $=id=>document.getElementById(id),defaults={speed:30,density:1.225,pitch:6,yaw:0,roll:0,length:2};let config={...defaults},mesh,running=true,elapsed=0,history=[],sweep=[],rows=[],view,resetSnapshot=null,currentResult,sweepVersion=0,editingAirfoil=false;
 const specs=[['speed','Airspeed',0,100,1,'m/s'],['density','Air density',.2,1.5,.005,'kg/m³'],['pitch','Pitch / angle of attack',-90,90,1,'°'],['yaw','Yaw',-180,180,1,'°'],['roll','Roll',-180,180,1,'°']];
 const airflow=document.createElement('fieldset'),orientation=document.createElement('fieldset');
@@ -48,7 +50,7 @@ for(const button of document.querySelectorAll('[data-lesson]'))button.addEventLi
  leaveAirfoil();config={...lesson.config};syncInputs();view.update(config);setMesh(view.preset(lesson.shape),lesson.label);$('preset').value=lesson.shape;view.setView(lesson.view);
  if(!running)$('pause').click();
  $('status').dataset.kind='status';$('status').textContent=lesson.message;$('lesson-status').textContent=lesson.message;
- $('workspace').scrollIntoView({behavior:'instant',block:'start'});document.querySelector('[data-view="'+lesson.view+'"]').focus({preventScroll:true});
+ $('workspace').scrollTop=0;document.querySelector('[data-view="'+lesson.view+'"]').focus({preventScroll:true});
 });
 
 createAirfoilEditor($('airfoil-customizer'),(profile,span)=>{const keep=editingAirfoil;setMesh(view.airfoil(profile,span),'Custom airfoil',{preserveView:keep});if(!keep)view.setView('side');editingAirfoil=true;$('preset').value='airfoil';$('status').dataset.kind='status';$('status').textContent='Custom airfoil active. Shape changes update the model and start a new run.';});
