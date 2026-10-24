@@ -22,7 +22,7 @@ body:not([data-page=simulation]) main#workspace{padding:1.5rem 4%;}body:not([dat
 .method-grid p,.lesson-grid p,.lesson-grid li,.method-limit p{color:#52675c}
 .equation{background:#f5f8f6;border-color:#e1e8e3}
 .method-limit{background:#f5f1e9;border-radius:.75rem;border-left-color:#ba8a55}
-.lesson-actions button{background:#f0f5f1;border-color:#cfddd2}
+.lesson-actions button:not(.primary){background:#f0f5f1;border-color:#cfddd2}
 .editor-canvas{background:#f6f9f6;border-color:#dbe6dd}
 .editor-actions button{font-weight:550}
 @media(max-width:760px){header nav a:first-child{display:block}.dashboard .charts h2{font-size:.6875rem}.section-heading{padding-top:.25rem}header nav{width:100%;justify-content:space-between}.brand small{display:none}}
