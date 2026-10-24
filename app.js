@@ -56,4 +56,3 @@ for(const button of document.querySelectorAll('[data-lesson]'))button.addEventLi
 createAirfoilEditor($('airfoil-customizer'),(profile,span)=>{const keep=editingAirfoil;setMesh(view.airfoil(profile,span),'Custom airfoil',{preserveView:keep});if(!keep)view.setView('side');editingAirfoil=true;$('preset').value='airfoil';$('status').dataset.kind='status';$('status').textContent='Custom airfoil active. Shape changes update the model and start a new run.';});
 
 function leaveAirfoil(){editingAirfoil=false;$('airfoil-message').textContent='Your editor profile is stored. Click Test this airfoil or move a point to reactivate it.';}
-
